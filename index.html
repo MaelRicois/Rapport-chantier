@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rapport de Chantier</title>
+  </head>
+  <body>
+    <header>
+      <div class="wrap row" style="justify-content: space-between">
+        <h1>
+          📋 Rapport de Chantier <span class="badge" id="version">v1</span>
+        </h1>
+        <div class="row">
+          <button class="btn ghost" onclick="saveDraft()">💾 Brouillon</button>
+          <button class="btn ghost" onclick="loadDraft()">📥 Charger</button>
+          <button class="btn primary" onclick="exportPDF()">
+            ⬇️ Export PDF
+          </button>
+        </div>
+      </div>
+    </header>
+    <main class="wrap">
+      <div class="card">
+        <div class="section-head">
+          <div class="title">En‑tête chantier</div>
+        </div>
+        <div class="grid cols-3">
+          <div>
+            <label>Nom du chantier</label><input id="chantier_nom" required />
+          </div>
+          <div><label>Référence</label><input id="chantier_ref" /></div>
+          <div><label>Date</label><input id="date" type="date" /></div>
+          <div><label>Adresse</label><input id="adresse" /></div>
+          <div><label>Maître d'ouvrage</label><input id="moa" /></div>
+          <div><label>Conducteur de travaux</label><input id="cdt" /></div>
+          <div>
+            <label>Chef de chantier</label><input id="cdc" value="Maël" />
+          </div>
+          <div>
+            <label>Météo</label>
+            <select id="meteo">
+              <option>Ensoleillé</option>
+              <option>Nuageux</option>
+              <option>Pluvieux</option>
+              <option>Vent</option>
+              <option>Neige</option>
+            </select>
+          </div>
+          <div>
+            <label>Température (°C)</label
+            ><input id="temp" type="number" inputmode="numeric" />
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="equipe_card">
+        <div class="section-head">
+          <div class="title">Équipe & Effectifs</div>
+          <button class="btn ghost" onclick="addEquipe()">
+            ➕ Ajouter une équipe
+          </button>
+        </div>
+        <div id="equipe_list" class="grid"></div>
+        <p class="hint">
+          Renseigne chaque équipe/sous-traitant (société, effectif, heures,
+          corps d'état).
+        </p>
+      </div>
+
+      <div class="card" id="engins_card">
+        <div class="section-head">
+          <div class="title">Matériel / Engins</div>
+          <button class="btn ghost" onclick="addEngin()">
+            ➕ Ajouter un engin
+          </button>
+        </div>
+        <div id="engins_list" class="grid"></div>
+      </div>
+
+      <div class="card" id="livraisons_card">
+        <div class="section-head">
+          <div class="title">Livraisons</div>
+          <button class="btn ghost" onclick="addLivraison()">
+            ➕ Ajouter une livraison
+          </button>
+        </div>
+        <div id="livraisons_list" class="grid"></div>
+      </div>
+
+      <div class="card" id="travaux_card">
+        <div class="section-head">
+          <div class="title">Travaux réalisés</div>
+          <button class="btn ghost" onclick="addTravaux()">
+            ➕ Ajouter une ligne
+          </button>
+        </div>
+        <div id="travaux_list" class="grid"></div>
+        <div class="divider"></div>
+        <div>
+          <label>Observations / Problèmes / Décisions</label>
+          <textarea
+            id="observations"
+            placeholder="Contraintes météo, coactivité, attente plans, décisions prises..."
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="card" id="securite_card">
+        <div class="section-head">
+          <div class="title">Sécurité & Qualité</div>
+        </div>
+        <div class="grid cols-3">
+          <div>
+            <label>Briefing sécurité réalisé</label>
+            <select id="briefing">
+              <option>Oui</option>
+              <option>Non</option>
+            </select>
+          </div>
+          <div>
+            <label>PPSPS à jour</label>
+            <select id="ppsps">
+              <option>Oui</option>
+              <option>Non</option>
+            </select>
+          </div>
+          <div>
+            <label>Incidents / Presqu'accidents</label>
+            <input id="incidents" placeholder="Décrire s'il y a lieu" />
+          </div>
+          <div class="grid cols-2" style="grid-column: 1/-1">
+            <div>
+              <label>Non‑conformités</label><textarea id="nc"></textarea>
+            </div>
+            <div>
+              <label>Actions correctives</label><textarea id="ac"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="photos_card">
+        <div class="section-head">
+          <div class="title">Photos</div>
+          <div class="row">
+            <label class="pill">📸 Astuce: utilise l'appareil photo</label>
+            <input
+              id="photos"
+              type="file"
+              accept="image/*"
+              multiple
+              capture="environment"
+            />
+          </div>
+        </div>
+        <div id="photos_preview" class="row"></div>
+      </div>
+
+      <div class="card" id="signatures_card">
+        <div class="section-head">
+          <div class="title">Signatures</div>
+          <button class="btn ghost" onclick="clearSign()">🧹 Effacer</button>
+        </div>
+        <div class="grid cols-2">
+          <div>
+            <label>Signature Chef de chantier</label>
+            <canvas
+              id="sig_cdc"
+              style="
+                background: #0a0f1b;
+                border: 1px solid #243045;
+                border-radius: 10px;
+                width: 100%;
+                height: 160px;
+              "
+            ></canvas>
+          </div>
+          <div>
+            <label>Signature MOE/MOA (optionnel)</label>
+            <canvas
+              id="sig_moe"
+              style="
+                background: #0a0f1b;
+                border: 1px solid #243045;
+                border-radius: 10px;
+                width: 100%;
+                height: 160px;
+              "
+            ></canvas>
+          </div>
+        </div>
+        <p class="hint">Signe au doigt sur téléphone.</p>
+      </div>
+    </main>
+
+    <div class="footer">
+      <div class="wrap row" style="justify-content: space-between">
+        <div class="row">
+          <button class="btn ghost" onclick="newReport()">🆕 Nouveau</button>
+          <button class="btn ghost" onclick="sharePDF()">✉️ Partager</button>
+        </div>
+        <div class="hint">
+          Les données sont conservées localement sur l'appareil (brouillons +
+          photos).
+        </div>
+      </div>
+    </div>
+    <link rel="stylesheet" href="./rapport.css" />
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
+    <script src="./rapport.js"></script>
+  </body>
+</html>
